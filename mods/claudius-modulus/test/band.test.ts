@@ -1,7 +1,7 @@
 import { expect, mock, test } from 'claude-code/testing'
 
 import { FRAMES, ICON_NUDGE, iconSvg } from '../hooks/icons'
-import { countDevServers, devServerUrl, summarizeDevServers } from '../hooks/servers'
+import { countDevServers, cwdArgs, devServerUrl, pidsInProject, summarizeDevServers } from '../hooks/servers'
 
 const PROPS = {
   hasSurvey: false,
@@ -23,7 +23,7 @@ test('the band draws on the terminal and the desktop before any reading arrives'
       props: PROPS,
     })
     expect(await ui.find({ type: 'Text', text: /usage shows after your first response/ })).toBeDefined()
-    expect(await ui.find({ type: 'Link', text: /^v1\.9\.2$/ })).toBeDefined()
+    expect(await ui.find({ type: 'Link', text: /^v1\.9\.3$/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /claudius-modulus/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /^_$/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /⚠/ })).toBeUndefined()
@@ -113,12 +113,12 @@ for (const surface of ['terminal', 'desktop'] as const) {
     // the quip has its own line, so it shows even in a normal-width band
     expect(await ui.find({ type: 'Text', text: /Limit in ~/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /^_$/ })).toBeDefined()
-    expect(await ui.find({ type: 'Link', text: /^v1\.9\.2$/ })).toBeDefined()
+    expect(await ui.find({ type: 'Link', text: /^v1\.9\.3$/ })).toBeDefined()
     await clock.advance(30_000)
     await ui.redraw()
     expect(await ui.find({ type: 'Text', text: /MAX EFFORT/ })).toBeDefined()
     // the version rides after the brand, so it gives way to the warning
-    expect(await ui.find({ type: 'Link', text: /^v1\.9\.2$/ })).toBeUndefined()
+    expect(await ui.find({ type: 'Link', text: /^v1\.9\.3$/ })).toBeUndefined()
     expect(toasts.length).toBe(1)
     expect(toasts[0]).toMatch(/MAX EFFORT/)
     await ui.unmount()
@@ -614,4 +614,17 @@ test('the dev servers counted from lsof are the processes that run python, node 
   expect(summarizeDevServers(out)).toEqual({ count: 3, port: 5173 })
   expect(summarizeDevServers('')).toEqual({ count: 0, port: null })
   expect(devServerUrl(5173)).toBe('http://localhost:5173')
+})
+
+test('the band opens the dev server running in this project, else the lowest port', () => {
+  const out = ['p6119', 'cPython', 'n*:8000', 'p93234', 'cnode', 'n127.0.0.1:5173'].join('\n')
+  const cwds = ['p6119', 'n/Users/a/Sites/app/api', 'p93234', 'n/Users/a/Sites/other'].join('\n')
+  const here = pidsInProject(cwds, '/Users/a/Sites/app')
+  expect([...here]).toEqual(['6119'])
+  expect(summarizeDevServers(out, here)).toEqual({ count: 2, port: 8000 })
+  // a sibling folder with the same prefix is not this project
+  expect(pidsInProject('p1\nn/Users/a/Sites/app2', '/Users/a/Sites/app').size).toBe(0)
+  // no server here: the lowest port overall
+  expect(summarizeDevServers(out, new Set())).toEqual({ count: 2, port: 5173 })
+  expect(cwdArgs(['1', '2']).slice(-2)).toEqual(['-p', '1,2'])
 })

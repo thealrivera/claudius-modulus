@@ -25,7 +25,7 @@ CC="$HOME/Library/Application Support/Claude/claude-code/2.1.295/9d6405864fdc/cl
 "$CC" plugin test mods/claudius-modulus
 ```
 
-`plugin test` runs 79 tests across the two files. There is no `plugin test` subcommand on 2.1.241.
+`plugin test` runs 80 tests across the two files. There is no `plugin test` subcommand on 2.1.241.
 
 ## Conventions
 
@@ -34,6 +34,13 @@ CC="$HOME/Library/Application Support/Claude/claude-code/2.1.295/9d6405864fdc/cl
 - Do not set `version` in `plugin.json` or the marketplace entry. Without it, every merge to `main` is an update.
 - Change `hooks/version.ts` only for a visible release. Then tag (`git tag -a vX.Y.Z`), push the tag, and `gh release create`.
 - Validate and test before pushing. Installed users follow `main` via auto-update, so a broken commit ships to them.
+
+## Shortcuts
+
+- **cmct** = release. Start from `dev`: branch `release-X.Y.Z` off `origin/dev`, bump `VERSION` in `hooks/version.ts`
+  (patch unless told otherwise) and every other place the old version appears (`grep -rnF 1.9.2 mods README.md docs/index.html`, plus the escaped `1\.9\.2` in tests), validate and test, PR into `dev` and merge. Then PR `dev` into `main` and merge, tag
+  the merge commit (`git tag -a vX.Y.Z`), push the tag, `gh release create vX.Y.Z --generate-notes`. Delete the release
+  branch, local and remote.
 
 ## Open items
 

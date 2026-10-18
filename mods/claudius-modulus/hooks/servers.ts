@@ -36,17 +36,39 @@ export function devServers(out: string): { pid: string; port: number }[] {
   return [...ports].map(([p, port]) => ({ pid: p, port }))
 }
 
-// How many dev servers are listening, and the lowest port among them (null when none).
-export function summarizeDevServers(out: string): { count: number; port: number | null } {
+// The pids in lsof's cwd listing (`-d cwd -Fpn`) whose working directory is the project root
+// or inside it.
+export function pidsInProject(cwdOut: string, root: string): Set<string> {
+  const base = root.replace(/\/+$/, '')
+  const here = new Set<string>()
+  let pid = ''
+  for (const line of cwdOut.split('\n')) {
+    if (line.startsWith('p')) pid = line.slice(1)
+    else if (line.startsWith('n')) {
+      const dir = line.slice(1)
+      if (base && (dir === base || dir.startsWith(base + '/'))) here.add(pid)
+    }
+  }
+  return here
+}
+
+// The lsof call that lists the working directory of each given pid.
+export const cwdArgs = (pids: string[]): string[] => ['lsof', '-a', '-d', 'cwd', '-Fpn', '-p', pids.join(',')]
+
+// How many dev servers are listening, and the port the band opens (null when none): the lowest
+// port among the servers running in this project when there are any, else the lowest overall.
+export function summarizeDevServers(out: string, inProject?: Set<string>): { count: number; port: number | null } {
   const found = devServers(out)
-  return { count: found.length, port: found.length ? Math.min(...found.map(f => f.port)) : null }
+  const mine = inProject ? found.filter(f => inProject.has(f.pid)) : []
+  const pool = mine.length ? mine : found
+  return { count: found.length, port: pool.length ? Math.min(...pool.map(f => f.port)) : null }
 }
 
 export function countDevServers(out: string): number {
   return devServers(out).length
 }
 
-// The address the band opens for the lowest-port dev server.
+// The address the band opens: this project's dev server, else the lowest-port one.
 export const devServerUrl = (port: number): string => `http://localhost:${port}`
 
 // How often the count is taken. lsof is quick, but there is no need to ask more often.

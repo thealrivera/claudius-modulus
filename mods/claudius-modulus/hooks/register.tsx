@@ -25,7 +25,7 @@ import {
 } from './logic'
 import { recordDone, recordSpawn, summarize } from './work'
 import { band, onBandButton } from './view'
-import { LSOF_ARGS, SERVERS_EVERY_MS, devServerUrl, summarizeDevServers } from './servers'
+import { LSOF_ARGS, SERVERS_EVERY_MS, cwdArgs, devServerUrl, devServers, pidsInProject, summarizeDevServers } from './servers'
 
 const model = atom({ plugin: 'claudius-modulus', key: 'model' } as const, null)
 const effort = atom({ plugin: 'claudius-modulus', key: 'effort' } as const, null)
@@ -110,7 +110,14 @@ async function ingest($: EngineInterface, u: Measured) {
 async function countServers($: EngineInterface): Promise<{ count: number; port: number | null } | null> {
   try {
     const { stdout } = await $.process.run([...LSOF_ARGS], { timeoutMs: 5000 })
-    return summarizeDevServers(stdout)
+    // Prefer the server running in this session's project; any failure falls back to the lowest port.
+    let here: Set<string> | undefined
+    try {
+      const root = String(await $.session.cwd())
+      const pids = devServers(stdout).map(f => f.pid)
+      if (root && pids.length) here = pidsInProject((await $.process.run(cwdArgs(pids), { timeoutMs: 5000 })).stdout, root)
+    } catch {}
+    return summarizeDevServers(stdout, here)
   } catch {
     return null
   }
