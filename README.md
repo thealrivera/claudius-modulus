@@ -19,7 +19,7 @@ See what is answering, how hard it is thinking, and when you will run out. Click
 
 ```
  ◆ Sonnet 5.5  ◉ xhigh  Session ████████░░░░░░░░ 31%  resets 3h 55m · runs out in ~2h 30m
- ▌ claudius-modulus_ v1.9.2 - “A token burned is a token earned.”
+ ▌ claudius-modulus_ v1.9.3 - “A token burned is a token earned.”
 ```
 
 ## Why
@@ -100,7 +100,7 @@ Install from a terminal, not from inside the desktop app's Code tab: `/plugin in
 <details>
 <summary><b>Full feature reference</b></summary>
 
-### What it shows (v1.9.2)
+### What it shows (v1.9.3)
 
 - **Model and effort chips:** what is answering, and how hard it is thinking.
 - **Session bar (Claude plans):** share of your 5-hour usage window used. Solid is used, dim is where your current

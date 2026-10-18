@@ -23,7 +23,7 @@ test('the band draws on the terminal and the desktop before any reading arrives'
       props: PROPS,
     })
     expect(await ui.find({ type: 'Text', text: /usage shows after your first response/ })).toBeDefined()
-    expect(await ui.find({ type: 'Link', text: /^v1\.9\.2$/ })).toBeDefined()
+    expect(await ui.find({ type: 'Link', text: /^v1\.9\.3$/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /claudius-modulus/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /^_$/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /⚠/ })).toBeUndefined()
@@ -113,12 +113,12 @@ for (const surface of ['terminal', 'desktop'] as const) {
     // the quip has its own line, so it shows even in a normal-width band
     expect(await ui.find({ type: 'Text', text: /Limit in ~/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /^_$/ })).toBeDefined()
-    expect(await ui.find({ type: 'Link', text: /^v1\.9\.2$/ })).toBeDefined()
+    expect(await ui.find({ type: 'Link', text: /^v1\.9\.3$/ })).toBeDefined()
     await clock.advance(30_000)
     await ui.redraw()
     expect(await ui.find({ type: 'Text', text: /MAX EFFORT/ })).toBeDefined()
     // the version rides after the brand, so it gives way to the warning
-    expect(await ui.find({ type: 'Link', text: /^v1\.9\.2$/ })).toBeUndefined()
+    expect(await ui.find({ type: 'Link', text: /^v1\.9\.3$/ })).toBeUndefined()
     expect(toasts.length).toBe(1)
     expect(toasts[0]).toMatch(/MAX EFFORT/)
     await ui.unmount()
