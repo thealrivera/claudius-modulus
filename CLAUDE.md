@@ -35,6 +35,13 @@ CC="$HOME/Library/Application Support/Claude/claude-code/2.1.295/9d6405864fdc/cl
 - Change `hooks/version.ts` only for a visible release. Then tag (`git tag -a vX.Y.Z`), push the tag, and `gh release create`.
 - Validate and test before pushing. Installed users follow `main` via auto-update, so a broken commit ships to them.
 
+## Shortcuts
+
+- **cmct** = release. Start from `dev`: branch `release-X.Y.Z` off `origin/dev`, bump `VERSION` in `hooks/version.ts`
+  (patch unless told otherwise) and every other place the old version appears (`grep -rnF 1.9.2 mods README.md docs/index.html`, plus the escaped `1\.9\.2` in tests), validate and test, PR into `dev` and merge. Then PR `dev` into `main` and merge, tag
+  the merge commit (`git tag -a vX.Y.Z`), push the tag, `gh release create vX.Y.Z --generate-notes`. Delete the release
+  branch, local and remote.
+
 ## Open items
 
 - `plugin validate` warns only that there is no `version`, which is deliberate (see Conventions).
