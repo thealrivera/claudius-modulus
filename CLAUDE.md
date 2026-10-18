@@ -25,7 +25,7 @@ CC="$HOME/Library/Application Support/Claude/claude-code/2.1.295/9d6405864fdc/cl
 "$CC" plugin test mods/claudius-modulus
 ```
 
-`plugin test` runs 79 tests across the two files. There is no `plugin test` subcommand on 2.1.241.
+`plugin test` runs 80 tests across the two files. There is no `plugin test` subcommand on 2.1.241.
 
 ## Conventions
 
